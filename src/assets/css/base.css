@@ -1,0 +1,39 @@
+
+/* css初始化文件 */
+body,ul,li,p,h1,h2,h3,h4,h5{
+  margin: 0;
+  padding: 0;
+}
+ul{
+  list-style: none;
+}
+a{
+  text-decoration: none;
+  color: #333;
+}
+img{
+  border: 0;
+}
+/*移动端布局*/
+html{
+  /* 100vw=750px => 100px=13.33333333vw */
+  /* vw单位兼容性比rem稍差，ios8、安装4.4及以上才完全支持 */
+  font-size:13.33333333vw ;
+}
+/* 防止字体过大 */
+@media (min-width:540px){
+  html{
+    font-size: 50px;
+  }
+}
+body{
+  font-size: .28rem;
+  font-family: '微软雅黑', 'Arial Narrow', Arial, sans-serif;
+  max-width: 750px;
+  margin: 0 auto !important;
+  background-color: #F7F7F7;
+  /* height:auto; */
+}
+#app{
+  position: relative;
+}

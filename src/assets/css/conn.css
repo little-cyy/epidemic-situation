@@ -1,0 +1,45 @@
+/* 蓝色长方形+标题 */
+.signTitle {
+  padding-left: 0.1rem;
+
+  font-size: .34rem;
+  height: .34rem;
+  line-height: .34rem;
+  margin-bottom: 0.3rem;
+  border-left: solid 0.1rem #4169e2;
+}
+/* 返回疫情动态按钮样式 */
+.back-btn {
+  position: absolute;
+  top: 0.24rem;
+  right: 0.24rem;
+  height: 0.48rem;
+  padding: 0 0.24rem;
+  color: #fff;
+  font-size: 0.22rem;
+  line-height: 0.48rem;
+  background-color: rgba(19, 15, 133, 0.5);
+  border-radius: 0.24rem;
+}
+
+/* 地图tooltip样式
+ */
+ .tooltip{
+   display: flex;
+   align-items: center;
+  
+ }
+ .tooltip_left{
+  border-right:1px solid #fff;
+  padding-right: .08rem;
+ }
+ .tooltip_left>div{
+  font-size: .24rem;
+  line-height: .26rem;
+}
+ .tooltip_right{
+  padding-left: .08rem;
+  
+
+ }
+ 
