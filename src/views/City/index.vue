@@ -120,13 +120,10 @@
   </div>
 </template>
 <script>
+import debounce from '@/utils/debounce.js'
 import { replaceList } from "./index.js";
-import GTable from "@/views/components/GTable.vue";
 export default {
   name: "City",
-  components: {
-    GTable,
-  },
   data() {
     return {
       colorList: [
@@ -148,14 +145,14 @@ export default {
       tableData: [],
       showPopup: false,
       cityName: "",
-      CityDayInfo: [],
+      CityDayInfo: [],    //存放当前省份的疫情历史数据
       allCityInfo: new Map(),
-      currCityInfo: {},
+      currCityInfo: {},  //存放当前省份的疫情信息
       active: 0,
-      cityList: [],
-      riskAreaArr: [],
-      confirmArr: [],
-      excludeList: ["台湾", "香港", "澳门"],
+      cityList: [],      //下拉选择框省份列表
+      riskAreaArr: [],   //地图映射的数据--风险地区
+      confirmArr: [],    //地图映射的数据--累计确诊
+      excludeList: ["台湾", "香港", "澳门"],   
     };
   },
   //定义过滤器
@@ -182,11 +179,12 @@ export default {
   },
   watch: {
     cityName() {
-      this.getCityDayInfo();
       if (this.allCityInfo.size > 0) {
         this.active = 0;
         this.initMap();
       }
+      debounce(this.getCityDayInfo,500)();
+      
     },
   },
   methods: {
@@ -209,13 +207,12 @@ export default {
       }
     },
     initMap() {
-      let arr = this.allCityInfo.get(this.cityName);
+      let arr = JSON.parse(JSON.stringify(this.allCityInfo.get(this.cityName)));
       this.tableData = arr.children;
-      // console.log(arr)
       this.confirmArr = [];
       this.riskAreaArr = [];
       let curConfirmArr = [];
-      arr.children.forEach((item) => {
+      this.tableData&&this.tableData.forEach((item) => {
         let obj1 = {},
           obj2 = {},
           obj3 = {};
@@ -264,7 +261,7 @@ export default {
     },
     getData() {
       let higMap = new Map(JSON.parse(localStorage.getItem("higMap")));
-      let midMap = new Map(JSON.parse(localStorage.getItem("higMap")));
+      let midMap = new Map(JSON.parse(localStorage.getItem("midMap")));
       const forMat = (obj) => {
         obj.total.AddConfirm = obj.today.confirm;
         obj = { ...obj, ...obj.total };
@@ -304,20 +301,17 @@ export default {
         const result = res.data.data;
         if (!result) return this.$toast.fail("提示文案");
         this.CityDayInfo = result.slice(-730);
-   
-// wrap-item
-// line-count
-      let colorList = ['#F86149',  '#657797','#37BCA9']
+        let colorList = ['#F86149',  '#657797','#37BCA9']
         let xAxisData=this.CityDayInfo.map(item=>item.date.split('.').join('-'))
         //现存确诊
         let CurConfirmArr=this.CityDayInfo.map(item=>item.confirm-item.dead-item.heal)
         this.$myChart.line(
           {id:'line-curConfirm',
           colorList:['#F86149'],
-          legend:['新增确诊'],
+          legend:['现存确诊'],
           dataList:[CurConfirmArr],
           xAxisData: xAxisData,
-          showTooltip:true
+          showTooltip:true,
            })
    
         //新增（确诊、死亡、治愈）
@@ -362,7 +356,8 @@ export default {
     position: absolute;
     top: 60%;
     left: 5%;
-
+    display: flex;
+    align-items: center;
     color: #fff;
     .cityName {
       padding: 0 0.06rem;

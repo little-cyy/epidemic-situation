@@ -40,7 +40,7 @@ const api = {
         return axios.get( base.city + '?' + canshu);
     },
     /**
-     * 获取城市历史接口
+     * 获取城市历史数据接口
      * */
     getCityDayInfo(city_name) {
         //md5加密规则：sign = MD5( appid1formatjsontime1545829466密钥) 查看加密规则说明 密钥不需要键名，请直接跟上32位的密钥

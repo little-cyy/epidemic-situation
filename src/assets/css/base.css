@@ -21,7 +21,7 @@ html{
   font-size:13.33333333vw ;
 }
 /* 防止字体过大 */
-@media (min-width:540px){
+@media (min-width:350px){
   html{
     font-size: 50px;
   }

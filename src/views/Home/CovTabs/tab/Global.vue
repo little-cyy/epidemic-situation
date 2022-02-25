@@ -1,5 +1,6 @@
 <template>
   <div class="global">
+    <!-- 统计版块 -->
     <div class="num">
       <div class="title">截至北京时间{{ WomWorld.lastUpdateTime }}</div>
       <ul class="wrap">
@@ -35,6 +36,7 @@
         </li>
       </ul>
     </div>
+    <!-- 表格版块 -->
     <div class="table-box">
       <div class="tabList">
         <div
@@ -50,6 +52,7 @@
       <GTable
         class="gTable"
         type="tree"
+        :key="0"
         :data="WomAboardTree"
         :column="column"
         :colorList="colorList"
@@ -59,18 +62,16 @@
         class="gTable"
         :data="WomAboard"
         :column="column"
+        :key="1"
         :colorList="colorList"
         v-if="active === 1"
+        limitHeight="400"
       />
     </div>
   </div>
 </template>
 <script>
-import GTable from "@/views/components/GTable.vue";
 export default {
-  components: {
-    GTable,
-  },
   data() {
     return {
       tabsTitles: ["按大洲查看", "按国家查看"],

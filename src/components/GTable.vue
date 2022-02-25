@@ -1,14 +1,13 @@
 <template>
   <div>
     <div
-      :id="elId + 'cv'"
       :class="{ listNav: true, hide: !isFixed }"
       cellpadding="0"
       cellspacing="0"
     >
       <table>
         <thead>
-          <tr>
+          <tr ref="fixed-tr">
             <th
               v-for="(item, idx) in column"
               :key="idx"
@@ -21,10 +20,13 @@
         </thead>
       </table>
     </div>
-    <div class="listWraper" :id="elId">
-      <table cellpadding="0" cellspacing="0">
+    <div
+      class="listWraper"
+      :style="{ maxHeight: OverHeight && showMore ? height + 'px' : '' }"
+    >
+      <table cellpadding="0" cellspacing="0" ref="table">
         <thead>
-          <tr>
+          <tr ref="table-tr">
             <th
               v-for="(item, idx) in column"
               :key="idx"
@@ -55,7 +57,9 @@
                     icon-class="triangle-right"
                     class="svgIcon"
                     :style="{
-                      transform: isOpen && ' rotateZ(90deg)',
+                      transform: isOpenList[index]
+                        ? ' rotateZ(90deg)'
+                        : ' rotateZ(0deg)',
                     }"
                   />
                   <span>{{ item[ele.prop] }}</span>
@@ -66,7 +70,7 @@
               </tr>
               <template v-if="item.children">
                 <tr
-                  class="normalContainer "
+                  class="normalContainer"
                   :class="{ hide: !isOpenList[index] }"
                   v-for="it in item.children"
                   :key="it.title"
@@ -80,7 +84,11 @@
             </template>
           </template>
           <template v-else>
-            <tr v-for="(item, index) in data" :key="index" class="normalContainer">
+            <tr
+              v-for="(item, index) in data"
+              :key="index"
+              class="normalContainer"
+            >
               <td v-for="(ele, idx) in column" :key="idx">
                 {{ item[ele.prop] }}
               </td>
@@ -92,11 +100,17 @@
         </tbody>
       </table>
     </div>
+    <div v-if="limitHeight && OverHeight" class="showMore" @click="clickMore">
+      {{ showMore ? "展开更多" : "收起" }}
+      <svg-icon v-if="showMore" icon-class="chevron-down" />
+      <svg-icon v-if="!showMore" icon-class="chevron-up" />
+    </div>
   </div>
 </template>
 <script>
-import { v4 } from "uuid"; // npm install -S uuid
-import throttle from '@/utils/throttle.js'
+import remFontSize from "@/utils/remFontSize.js";
+// import { v4 } from "uuid"; // npm install -S uuid
+import throttle from "@/utils/throttle.js";
 export default {
   name: "GTable",
   props: {
@@ -117,86 +131,110 @@ export default {
       type: Array,
       default: () => [],
     },
+    limitHeight: {
+      type: String,
+      default: () => "",
+    },
   },
   data() {
     return {
-      isOpen: false,
-      isFixed: false,
-      elId: "",
+      isFixed: false, //是否吸顶
       tableData: [],
-      isOpenList: [],
-      throttle:throttle(this.handleScroll,200)
+      isOpenList: [], //树形表格是否召开子节点
+      throttle: throttle(this.handleScroll, 200), //包裹节流函数
+      OverHeight: false, //如果表格限制高度，是否超过高度
+      showMore: true, //如果表格限制高度，是否显示【查看更多】文字,
+      height: "", //如果表格限制高度，height是处理过的要限制高度，防止表格高度限制后最后一行数据显示不全,
+      HeightList: [],
     };
   },
+  watch: {},
   created() {
     this.init();
   },
   mounted() {
-   this.$nextTick(()=>{
+    this.$nextTick(() => {
       window.addEventListener("scroll", this.throttle);
-   })
-    this.$once('width',()=>{
-      console.log(1)
-      this.initWidth()
-    })
+      this.$once("initWidth", this.initWidth);
+      this.$once("judeHeight", this.judeHeight);
+    });
   },
   activated() {
     // handleScroll为页面滚动的监听回调
     window.addEventListener("scroll", this.throttle);
   },
   methods: {
-
+    init() {
+      if (this.type === "tree") {
+        this.isOpenList = new Array(this.data.length).fill(false);
+        // console.log(this.isOpenList);
+      }
+    },
+    judeHeight() {
+      const height = this.$refs.table.offsetHeight;
+      this.HeightList.push(height);
+      this.height = height;
+      // console.log(height,this.clientHeight)
+      if (this.limitHeight && height > this.limitHeight) {
+        const thHeight = remFontSize(0.32); //表头高度
+        const trHeight = remFontSize(0.24); //表格单元高度
+        const diff = ((this.limitHeight - thHeight) / trHeight).toFixed();
+        this.height = thHeight + diff * trHeight;
+        this.OverHeight = true;
+        this.HeightList.push(this.height);
+      }
+    },
+    clickMore() {
+      this.showMore = !this.showMore;
+      this.height = this.showMore ? this.HeightList[1] : this.HeightList[0];
+    },
+    //初始化吸顶表列头每个th的宽度
     initWidth() {
-      const doc= document.querySelector("#" + this.elId)
-      if(doc){
-        const thList =doc.children[0]
-          .children[0].children[0].children;
-        const thCVList = document.querySelector("#" + this.elId + "cv")
-          .children[0].children[0].children[0].children;
-        for (let i = 0; i < thCVList.length; i++) {
-          // console.log(getComputedStyle(thList[i]).getPropertyValue('width'))
-          thCVList[i].style.width =window.getComputedStyle(thList[i]).width
-        }
+      // listNav>table>thead>tr>th
+      const thList = this.$refs["table-tr"].children;
+      const thCVList = this.$refs["fixed-tr"].children;
+      for (let i = 0; i < thCVList.length; i++) {
+        // console.log(getComputedStyle(thList[i]).getPropertyValue('width'))
+        thCVList[i].style.width = window.getComputedStyle(thList[i]).width;
       }
     },
     preClick(index) {
       // console.log(111)
       // this.data[index].isOpen=!this.data[index].isOpen
-      this.$set(this.isOpenList, index, !this.isOpenList[index]);
+      const flag = !this.isOpenList[index];
+      this.$set(this.isOpenList, index, flag);
     },
-    init() {
-      this.elId = "aa" + v4(); // 避免key重复
 
-      if (this.type === "tree") {
-        this.isOpenList = new Array(this.data.length).fill(false);
-      }
-    },
     handleScroll() {
       // 得到页面滚动的距离
-        let clientHeight = document.querySelector("#" + this.elId).clientHeight;
-        let offsetTop = document.querySelector("#" + this.elId).offsetTop;
-        let scrollTop =
+      let offsetTop = this.$refs.table.offsetTop;
+      let scrollTop =
         window.pageYOffset ||
         document.documentElement.scrollTop ||
         document.body.scrollTop;
-        // console.log(this.elId,offsetTop)
-        if(scrollTop > offsetTop){this.$emit('width')}
+      if (this.$refs.table.clientHeight > 32) {
+        this.$emit("initWidth");
+        this.$emit("judeHeight");
+      }
       // 判断页面滚动的距离是否大于吸顶元素的位置
       this.isFixed =
-        scrollTop > offsetTop && scrollTop < offsetTop + clientHeight - 40
+        scrollTop > offsetTop && scrollTop < offsetTop + this.height - 40
           ? true
           : false;
     },
+    //点击详情
     detail(item) {
       this.$emit("detailClick", item);
     },
   },
   deactivated() {
     //  同时在deactivated回调中移除监听：
- console.log(this.elId)
-    window.removeEventListener("scroll",  this.throttle);
+    window.removeEventListener("scroll", this.throttle);
     this.isFixed = false;
-    
+  },
+  destroyed() {
+    window.removeEventListener("scroll", this.throttle);
+    this.isFixed = false;
   },
 };
 </script>
@@ -208,9 +246,12 @@ tbody,
 tr {
   width: 100%;
 }
+.listWraper {
+  overflow: hidden;
+}
 .listNav {
-  display: table-row ;
-  
+  display: table-row;
+  z-index: 99;
   position: fixed;
   max-width: 750px;
   top: 0;
@@ -241,7 +282,7 @@ tbody > tr {
   color: #333;
   height: 0.48rem;
   border-bottom: 0.01rem solid #ebebeb;
-    td:first-of-type {
+  td:first-of-type {
     text-align: left;
   }
 }
@@ -254,11 +295,9 @@ tbody > .parentContainer {
   td {
     border-right: 0.02rem solid #fff;
   }
-
 }
 
 tbody > .normalContainer {
- 
   td:first-of-type {
     text-align: left;
     padding-left: 0.32rem;
@@ -266,7 +305,7 @@ tbody > .normalContainer {
 }
 tr > th:first-of-type,
 tr > td:first-of-type {
-  width: 1.5rem;
+  width: 1.6rem;
   box-sizing: border-box;
 }
 .pdLeft {
@@ -285,6 +324,15 @@ tr > td:first-of-type {
   font-size: 0.2rem;
   .svg-icon {
     width: 0.12rem;
+  }
+}
+.showMore {
+  color: #4169e2;
+  font-size: 0.2rem;
+  text-align: center;
+  margin: 0.1rem 0;
+  .svg-icon {
+    width: 0.2rem;
   }
 }
 </style>

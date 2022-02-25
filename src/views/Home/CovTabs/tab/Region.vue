@@ -1,6 +1,8 @@
 <template>
   <div class="region">
+    <!-- 近期疫情分布 -->
     <div class="covDistribution">
+      <!-- 风险地区统计版块 -->
       <div class="signTitle">
         <div class="pTitle">近期疫情分布</div>
         <div class="modifyTime">截至北京时间{{ modifyTime && modifyTime }}</div>
@@ -18,15 +20,18 @@
           <svg-icon icon-class="chevron-right" />
         </div>
       </div>
+      <!-- 表格版块 -->
       <GTable
         type="tree"
         :data="tableData"
         :column="column"
         :colorList="colorList"
         showDetail
+        limitHeight="500"
         @detailClick="detailClick"
       />
     </div>
+    <!-- 国内疫情地图 -->
     <div class="ChinaMap">
       <div class="signTitle">国内疫情地图</div>
       <div class="chartDiv">
@@ -55,11 +60,7 @@
   </div>
 </template>
 <script>
-import GTable from "@/views/components/GTable.vue";
 export default {
-  components: {
-    GTable,
-  },
   props: {
     chinaInfo: {
       type: Array,

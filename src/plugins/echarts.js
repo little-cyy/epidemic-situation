@@ -17,6 +17,7 @@ const install = function (Vue, options) {
           //  绘制一个折线图
           line(config) {
             // console.log(config)
+            if(config.yAxisLabel)config.yAxisLabel.fontSize=remFontSize(0.1)
             var myChart = echarts.init(document.getElementById(config.id));
             // 指定图表的配置项和数据
             var option = {
@@ -24,12 +25,22 @@ const install = function (Vue, options) {
               title: {
                 show: config.title,
                 text: '全国' + config.title,
-                top: remFontSize(0.1),
+                top: remFontSize(0.05),
                 left: remFontSize(0.1)
               },
               tooltip: { //悬浮弹框
                 show: config.showTooltip,
+                confine:true,//限制在图表内
                 trigger: 'axis', 
+                formatter(params) {
+                  var result = "<div>" + params[0].axisValue + "</div>";
+                  params.forEach(function(item, index) {
+                    result +=
+                    '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:'+item.color+';"></span>';
+                    result += item.seriesName + "：" + (item.data) + ( config.showUnit?config.showUnit:'')+"<br>";
+                  });
+                 return result;
+                }
               },
               legend: {
                 show: config.legend,
@@ -51,13 +62,13 @@ const install = function (Vue, options) {
               },
               yAxis: {
                 axisLine: { show: false },  //隐藏竖线
-                axisLabel: { fontSize: remFontSize(0.1) },
+                axisLabel:config.yAxisLabel|| { fontSize: remFontSize(0.1) },
                 type: 'value'
               },
               grid: {
                 height: '70%',
                 width: '90%',
-                top: '20%',
+                top: '22%',
                 left: 'center',
                 containLabel: true
               },
@@ -65,6 +76,7 @@ const install = function (Vue, options) {
                 config.dataList && config.dataList.map((item, idx) => {
                   const obj = {
                     name: config.legend[idx],
+                    areaStyle:config.areaStyle&&{},
                     data: item,
                     type: 'line',
                     symbolSize: 3, // 拐点图形大小,
@@ -82,7 +94,7 @@ const install = function (Vue, options) {
             };
             // 使用刚指定的配置项和数据显示图表。
             myChart.setOption(option);
-            window.addEventListener("resize",debounce( () => {myChart.resize() },2000));
+            window.addEventListener("resize",debounce( () => {myChart.resize() },800));
           },
           //中国地图
           chinaMap(id, data) {
@@ -185,7 +197,7 @@ const install = function (Vue, options) {
               }]
             }
             myChart.setOption(option);
-            window.addEventListener("resize",debounce( () => {myChart.resize() },2000));
+            window.addEventListener("resize",debounce( () => {myChart.resize() },800));
           },
           //省份地图
           cityMap(id, data, cityName) {
@@ -196,7 +208,7 @@ const install = function (Vue, options) {
                 triggerOn: 'click', //提示框触发的条件
                 enterable: true,//鼠标是否可进入提示框浮层中，默认为false
                 formatter(item) {//item=下面serves里面的data里面的每一项 //[{} ] data={} a b c d 
-                  return ' <div>城市：' + item.name + '</div><div>' + title + '：' + item.value + '</div>'
+                  return ' <div>城市：' + item.name + '</div><div>' + title + '：' + item.value+ '</div>'
                 }
               },
               visualMap: [{ //映射高亮颜色
@@ -287,10 +299,8 @@ const install = function (Vue, options) {
               }]
             }
             myChart.setOption(option);
-            window.addEventListener("resize",debounce( () => {myChart.resize() },2000));
+            window.addEventListener("resize",debounce( () => {myChart.resize() },800));
           },
-
-
         }
       }
     }

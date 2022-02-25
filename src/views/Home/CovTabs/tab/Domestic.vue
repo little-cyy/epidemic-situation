@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 统计版块 -->
     <div class="num">
       <div class="title">截至{{ modifyTime && modifyTime }}全国数据统计</div>
       <ul class="wrap">
@@ -49,6 +50,7 @@
         </li>
       </ul>
     </div>
+    <!-- 国内疫情趋势 -->
     <div class="epidemicTrend">
       <div class="signTitle">国内疫情趋势</div>
       <div class="chartDiv">
@@ -79,6 +81,7 @@
         </div>
       </div>
     </div>
+    <!-- 表格版块 -->
     <div class="tableBox">
       <GTable
       type="tree"
@@ -93,11 +96,7 @@
   </div>
 </template>
 <script>
-import GTable from "@/views/components/GTable.vue";
 export default {
-  components: {
-    GTable,
-  },
     props: {
     chinaInfo: {
       type: Array,
@@ -281,7 +280,7 @@ export default {
       });
     },
     init() {
-     let colorList = ['#F86149','#F86149','#F86149','#F86149','#F86149',  '#657797','#37BCA9']
+     let colorList = ['#F86149','#F86149','#F86149','#F86149','#F86149',  '#37BCA9','#657797']
       this.btnList.forEach((item, idx) => {
         const key = [...Object.keys(this.sendData)][idx];
         // console.log(typeof this.sendData[key],[...this.sendData[key]])

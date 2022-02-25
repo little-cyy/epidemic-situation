@@ -3,7 +3,8 @@ import Vue from 'vue'
 import { Toast ,Tab, Tabs } from 'vant';
 import { Popup } from 'vant';
 import { Picker } from 'vant';
-
+import { Loading } from 'vant';
+Vue.use(Loading);
 Vue.use(Picker);
 Vue.use(Popup);
 Vue.use(Toast)

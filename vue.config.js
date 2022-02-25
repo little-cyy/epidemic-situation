@@ -1,4 +1,5 @@
 const path = require('path')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 function resolve(dir) {
 	return path.join(__dirname, dir)
 }
@@ -23,6 +24,18 @@ module.exports = {
 			.end()
 	},
 	configureWebpack: {
+		optimization: {
+			minimizer: [
+				new UglifyJsPlugin({
+					uglifyOptions: {
+						warnings: false,
+						compress: {
+							pure_funcs: ['console.log', 'console.debug']
+						}
+					}
+				})
+			]
+		},
 		resolve: {
 			alias: {
 				// eslint-disable-next-line no-undef
@@ -30,6 +43,9 @@ module.exports = {
 			},
 		},
 	},
+
+
+
 
 	//配置参数
 	/**

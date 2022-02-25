@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 统计版块 -->
     <div class="num">
       <ul class="wrap">
         <li>
@@ -37,6 +38,18 @@
         </li>
       </ul>
     </div>
+    <!-- 中国累计接种趋势 -->
+    <div class="VaccineTrend">
+      <div class="signTitle">中国累计接种趋势</div>
+      <div
+        id="lineVaccine"
+        style="width: 6.9rem; height: 4rem; margin: 0 auto 0.3rem"
+      ></div>
+      <div
+        id="lineVaccineHundred"
+        style="width: 6.9rem; height:4rem; margin: 0 auto 0.3rem"
+      ></div>
+    </div>
   </div>
 </template>
 <script>
@@ -55,6 +68,7 @@ export default {
           total_vaccinations_per_hundred: 0,
         },
       },
+      ChinaVaccineTrendData: [],
     };
   },
 
@@ -88,6 +102,42 @@ export default {
         const result = res.data;
         if (!result) return this.$toast.fail("提示文案");
         this.VaccineData = result.data.VaccineTopData;
+        this.ChinaVaccineTrendData = result.data.ChinaVaccineTrendData;
+        this.initLIne();
+      });
+    },
+    initLIne() {
+      let xAxisData = this.ChinaVaccineTrendData.map((item) =>
+        item.date.split(".").join("-")
+      );
+      let total = this.ChinaVaccineTrendData.map((item) =>
+        (item.total_vaccinations / 100000000).toFixed()
+      );
+      let per_hundred = this.ChinaVaccineTrendData.map(
+        (item) => item.total_vaccinations_per_hundred
+      );
+      this.$myChart.line({
+        id: "lineVaccine",
+        colorList: ["#879BD7"],
+        legend: ["中国累计接种趋势"],
+        dataList: [total],
+        xAxisData: xAxisData,
+        showTooltip: true,
+        areaStyle: true,
+        showUnit:'亿',
+        yAxisLabel: {
+          formatter: "{value} 亿",
+          fontSize:""
+        },
+      });
+      this.$myChart.line({
+        id: "lineVaccineHundred",
+        colorList: ["#F86149"],
+        legend: ["中国每百人接种趋势"],
+        dataList: [per_hundred],
+        xAxisData: xAxisData,
+        showTooltip: true,
+        areaStyle: true,
       });
     },
   },
@@ -165,6 +215,15 @@ export default {
   }
   li:nth-child(6) {
     color: #28b7a3;
+  }
+}
+.VaccineTrend{
+  padding: 0 0.3rem 0.3rem;
+  #lineVaccine,#lineVaccineHundred{
+  border: 0.01rem solid #ebebeb;
+    border-radius: 0.08rem;
+    box-shadow: 0 0 3px 2px rgba(194, 192, 192, 0.2);
+    box-sizing: border-box;
   }
 }
 </style>

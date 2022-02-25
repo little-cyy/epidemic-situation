@@ -218,19 +218,18 @@
 </template>
 <script>
 import { contentList } from "./index.js";
-import { remFontSize } from "@/utils/remFontSize.js";
+import remFontSize from "@/utils/remFontSize.js";
 export default {
   data() {
     return {
-      contentList,
+      contentList,         //存储防护贴士信息
       active: 0,
-      departurePlace: "",
-      from: "",
-      destination: "",
-      to: "",
-      fromInfo: [],
-      toInfo: {},
-      areaList: [],
+      departurePlace: "",  //出发地城市名
+      from: "",            //出发地城市ID
+      destination: "",     //目的地城市名
+      to: "",              //目的地城市ID
+      fromInfo: [],        //出发地出行政策信息
+      toInfo: {},          //目的地出行政策信息    
       popupConfig: {
         show: false,
         type: 0 /**0出发点  1目的地 */,
@@ -244,7 +243,7 @@ export default {
         { show: false, showMore: false },
       ],
       lineHeight: 0,
-      InfoList: [],
+      InfoList: [],   //存储所有城市政策信息
       isSwitch: false,
     };
   },
@@ -252,7 +251,6 @@ export default {
     this.getCityList();
     this.lineHeight = remFontSize(0.2);
   },
-  mounted() {},
   methods: {
     getCityList() {
       this.$api.getTravel().then((res) => {

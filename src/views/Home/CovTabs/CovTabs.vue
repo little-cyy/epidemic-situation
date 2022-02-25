@@ -12,9 +12,13 @@
           {{ item }}
         </div>
       </div>
+      <!-- 地区疫情 -->
       <Region :chinaInfo="chinaInfo" v-if="idx === 1"/>
+      <!-- 国内疫情 -->
       <Domestic :chinaInfo="chinaInfo" v-if="idx === 2"/>
+      <!-- 海外疫情 -->
       <Global v-if="idx === 3"/>
+      <!-- 新冠疫苗 -->
       <Vaccine v-if="idx === 4"/>
     </div>
   </div>
