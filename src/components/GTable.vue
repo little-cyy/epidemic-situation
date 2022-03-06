@@ -111,6 +111,7 @@
 import remFontSize from "@/utils/remFontSize.js";
 // import { v4 } from "uuid"; // npm install -S uuid
 import throttle from "@/utils/throttle.js";
+import debounce from "@/utils/debounce.js";
 export default {
   name: "GTable",
   props: {
@@ -142,6 +143,7 @@ export default {
       tableData: [],
       isOpenList: [], //树形表格是否召开子节点
       throttle: throttle(this.handleScroll, 200), //包裹节流函数
+      debounce:debounce(this.initWidth,800),
       OverHeight: false, //如果表格限制高度，是否超过高度
       showMore: true, //如果表格限制高度，是否显示【查看更多】文字,
       height: "", //如果表格限制高度，height是处理过的要限制高度，防止表格高度限制后最后一行数据显示不全,
@@ -155,6 +157,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       window.addEventListener("scroll", this.throttle);
+      window.addEventListener("resize",this.debounce);
       this.$once("initWidth", this.initWidth);
       this.$once("judeHeight", this.judeHeight);
     });
@@ -162,6 +165,7 @@ export default {
   activated() {
     // handleScroll为页面滚动的监听回调
     window.addEventListener("scroll", this.throttle);
+    window.addEventListener("resize",this.debounce);
   },
   methods: {
     init() {
@@ -230,10 +234,12 @@ export default {
   deactivated() {
     //  同时在deactivated回调中移除监听：
     window.removeEventListener("scroll", this.throttle);
+    window.removeEventListener("resize",this.debounce);
     this.isFixed = false;
   },
   destroyed() {
     window.removeEventListener("scroll", this.throttle);
+    window.removeEventListener("resize",this.debounce);
     this.isFixed = false;
   },
 };
